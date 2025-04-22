@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheesecakefactorydle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cheesecakefactorydle</h1>
+        <div class="game-container">
+            <div class="food-display">
+                <img id="food-image" src="" alt="Food item from Cheesecake Factory">
+                <h2 id="food-name"></h2>
+                <p id="food-description"></p>
+            </div>
+            <div class="guess-container">
+                <p>How many calories are in this item?</p>
+                <div class="input-container">
+                    <input type="number" id="calorie-guess" placeholder="Enter your guess" min="0">
+                    <button id="submit-guess">Submit Guess</button>
+                </div>
+                <div id="feedback" class="feedback"></div>
+            </div>
+            <div class="previous-guesses">
+                <h3>Previous Guesses</h3>
+                <ul id="guesses-list"></ul>
+            </div>
+            <div id="result-message" class="result-message"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
