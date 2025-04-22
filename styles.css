@@ -172,3 +172,17 @@ h1 {
 .play-again:hover {
     background-color: #c01530;
 }
+
+/* Footer Styles */
+.footer {
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #666;
+}
+
+.footer .highlight {
+    font-weight: bold;
+    color: #e31837; /* Cheesecake Factory red to match the theme */
+}

@@ -120,8 +120,11 @@ function handleGuess() {
     const difference = Math.abs(guess - actualCalories);
     const percentDifference = (difference / actualCalories) * 100;
 
-    // Check if guess is correct (within 10% or 100 calories)
-    const isCorrect = percentDifference < 10 || difference <= 100;
+    // Calculate allowed margin (10% of actual calories, capped at 100)
+    const allowedMargin = Math.max(Math.min(actualCalories * 0.1, 100), 10);
+
+    // Check if guess is correct (within the allowed margin)
+    const isCorrect = difference <= allowedMargin;
 
     // Add to previous guesses list
     addGuessToList(guess, actualCalories);
@@ -147,9 +150,9 @@ function addGuessToList(guess, actualCalories) {
 
     // Determine if guess is higher or lower
     const comparison = guess > actualCalories 
-        ? '↑ Too high' 
+        ? '↓ Too high'
         : guess < actualCalories 
-            ? '↓ Too low' 
+            ? '↑ Too low'
             : '✓ Correct!';
 
     // Create guess text
