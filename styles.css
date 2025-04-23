@@ -18,11 +18,12 @@ body {
     padding: 20px;
 }
 
-h1 {
-    text-align: center;
+.logo-image {
+    display: block;
+    margin: 0 auto;
     margin-bottom: 30px;
-    color: #e31837; /* Cheesecake Factory red */
-    font-size: 2.5rem;
+    max-width: 480px;
+    height: auto;
 }
 
 .game-container {
@@ -135,6 +136,15 @@ h1 {
     margin: 20px 0;
     padding: 15px;
     border-radius: 5px;
+}
+
+/* Celebration Image */
+.celebration-image {
+    max-width: 300px;
+    height: auto;
+    margin: 0 auto 15px auto;
+    display: block;
+    border-radius: 8px;
 }
 
 /* Animation for correct guess */

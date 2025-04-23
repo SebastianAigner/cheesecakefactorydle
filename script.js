@@ -172,8 +172,25 @@ function handleCorrectGuess(actualCalories) {
     // Select a random congratulatory title
     const randomTitle = congratulatoryTitles[Math.floor(Math.random() * congratulatoryTitles.length)];
 
-    // Display success message
-    resultMessage.textContent = `🎉 ${randomTitle} The actual calorie count is ${actualCalories}.`;
+    // Clear the result message
+    resultMessage.innerHTML = '';
+
+    // Create and add the celebration image
+    const celebrationImage = document.createElement('img');
+    celebrationImage.src = 'Sebi_cheesecake.png';
+    celebrationImage.alt = 'Celebration Image';
+    celebrationImage.classList.add('celebration-image');
+    resultMessage.appendChild(celebrationImage);
+
+    // Add a line break
+    resultMessage.appendChild(document.createElement('br'));
+
+    // Add the success message
+    const successMessage = document.createElement('p');
+    successMessage.textContent = `🎉 ${randomTitle} The actual calorie count is ${actualCalories}.`;
+    resultMessage.appendChild(successMessage);
+
+    // Add the celebrate class
     resultMessage.classList.add('celebrate');
 
     // Add button to play again
