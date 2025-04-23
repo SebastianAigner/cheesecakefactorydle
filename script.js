@@ -150,10 +150,10 @@ function addGuessToList(guess, actualCalories) {
 
     // Determine if guess is higher or lower
     const comparison = guess > actualCalories 
-        ? '↓ Too high'
+        ? '⬇️ Too high'
         : guess < actualCalories 
-            ? '↑ Too low'
-            : '✓ Correct!';
+            ? '⬆️ Too low'
+            : '✅ Correct!';
 
     // Create guess text
     listItem.innerHTML = `
