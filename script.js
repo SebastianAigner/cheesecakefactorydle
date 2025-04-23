@@ -221,4 +221,16 @@ function addPlayAgainButton() {
 }
 
 // Start the game when the page loads
-window.addEventListener('DOMContentLoaded', initGame);
+window.addEventListener('DOMContentLoaded', () => {
+    initGame();
+
+    // Add click event for Bell Pepper Farm text
+    const bellPepperFarm = document.getElementById('bell-pepper-farm');
+    const closeupContainer = document.getElementById('closeup-container');
+
+    if (bellPepperFarm && closeupContainer) {
+        bellPepperFarm.addEventListener('click', () => {
+            closeupContainer.classList.toggle('hidden');
+        });
+    }
+});

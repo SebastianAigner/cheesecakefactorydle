@@ -195,4 +195,21 @@ body {
 .footer .highlight {
     font-weight: bold;
     color: #e31837; /* Cheesecake Factory red to match the theme */
+    cursor: pointer;
+}
+
+/* Closeup Image Styles */
+.closeup-container {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.closeup-image {
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.hidden {
+    display: none;
 }
