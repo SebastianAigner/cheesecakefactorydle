@@ -453,29 +453,42 @@ function animateSwap(draggedElement, existingItem, sourceBox, dropBox) {
     const draggedRect = draggedElement.getBoundingClientRect();
     const existingRect = existingItem.getBoundingClientRect();
     
-    // Calculate the distance to move
-    const draggedDeltaX = existingRect.left - draggedRect.left;
-    const draggedDeltaY = existingRect.top - draggedRect.top;
-    const existingDeltaX = draggedRect.left - existingRect.left;
-    const existingDeltaY = draggedRect.top - existingRect.top;
-    
     // Add animating class to prevent interactions
     draggedElement.classList.add('animating');
     existingItem.classList.add('animating');
     
-    // Apply initial transform to move items to their target positions
-    draggedElement.style.transform = `translate(${draggedDeltaX}px, ${draggedDeltaY}px)`;
-    existingItem.style.transform = `translate(${existingDeltaX}px, ${existingDeltaY}px)`;
+    // Move elements in DOM first (without animation)
+    sourceBox.appendChild(existingItem);
+    dropBox.appendChild(draggedElement);
     
-    // After animation completes, actually move the DOM elements
+    // Get final positions after DOM manipulation
+    const draggedFinalRect = draggedElement.getBoundingClientRect();
+    const existingFinalRect = existingItem.getBoundingClientRect();
+    
+    // Calculate how far each element needs to move back to its original position
+    const draggedBackX = draggedRect.left - draggedFinalRect.left;
+    const draggedBackY = draggedRect.top - draggedFinalRect.top;
+    const existingBackX = existingRect.left - existingFinalRect.left;
+    const existingBackY = existingRect.top - existingFinalRect.top;
+    
+    // Set initial transform to original positions (no transition yet)
+    draggedElement.style.transition = 'none';
+    existingItem.style.transition = 'none';
+    draggedElement.style.transform = `translate(${draggedBackX}px, ${draggedBackY}px)`;
+    existingItem.style.transform = `translate(${existingBackX}px, ${existingBackY}px)`;
+    
+    // Force reflow to ensure transforms are applied
+    draggedElement.offsetHeight;
+    existingItem.offsetHeight;
+    
+    // Re-enable transitions and animate to final position (transform: none)
+    draggedElement.style.transition = '';
+    existingItem.style.transition = '';
+    draggedElement.style.transform = '';
+    existingItem.style.transform = '';
+    
+    // Clean up after animation completes
     setTimeout(() => {
-        // Move elements in DOM
-        sourceBox.appendChild(existingItem);
-        dropBox.appendChild(draggedElement);
-        
-        // Reset transforms and remove animating class
-        draggedElement.style.transform = '';
-        existingItem.style.transform = '';
         draggedElement.classList.remove('animating');
         existingItem.classList.remove('animating');
     }, 500); // Match the CSS transition duration
@@ -485,32 +498,32 @@ function animateMove(draggedElement, dropBox) {
     // Get initial position
     const draggedRect = draggedElement.getBoundingClientRect();
     
-    // Temporarily place element in target box to get target position
-    const tempPlaceholder = document.createElement('div');
-    tempPlaceholder.style.height = draggedElement.offsetHeight + 'px';
-    tempPlaceholder.style.visibility = 'hidden';
-    dropBox.appendChild(tempPlaceholder);
-    
-    const targetRect = tempPlaceholder.getBoundingClientRect();
-    dropBox.removeChild(tempPlaceholder);
-    
-    // Calculate the distance to move
-    const deltaX = targetRect.left - draggedRect.left;
-    const deltaY = targetRect.top - draggedRect.top;
-    
     // Add animating class
     draggedElement.classList.add('animating');
     
-    // Apply transform to move to target position
+    // Move element in DOM first (without animation)
+    dropBox.appendChild(draggedElement);
+    
+    // Get final position after DOM manipulation
+    const draggedFinalRect = draggedElement.getBoundingClientRect();
+    
+    // Calculate how far element needs to move back to its original position
+    const deltaX = draggedRect.left - draggedFinalRect.left;
+    const deltaY = draggedRect.top - draggedFinalRect.top;
+    
+    // Set initial transform to original position (no transition yet)
+    draggedElement.style.transition = 'none';
     draggedElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
     
-    // After animation completes, actually move the DOM element
+    // Force reflow to ensure transform is applied
+    draggedElement.offsetHeight;
+    
+    // Re-enable transition and animate to final position (transform: none)
+    draggedElement.style.transition = '';
+    draggedElement.style.transform = '';
+    
+    // Clean up after animation completes
     setTimeout(() => {
-        // Move element in DOM
-        dropBox.appendChild(draggedElement);
-        
-        // Reset transform and remove animating class
-        draggedElement.style.transform = '';
         draggedElement.classList.remove('animating');
     }, 500); // Match the CSS transition duration
 }
