@@ -353,10 +353,12 @@ function displayDiscaloriedItems() {
         itemElement.innerHTML = `
             <img src="${imageUrl}" alt="${item.name}">
             <div class="discaloried-item-info">
-                <div class="discaloried-item-name">${item.name}</div>
+                <div class="discaloried-item-name">
+                    <span class="item-name-text">${item.name}</span>
+                    <span class="discaloried-item-calories" style="display: none;">${item.basecalories} cal</span>
+                </div>
                 <div class="discaloried-item-description">${item.description || ''}</div>
             </div>
-            <div class="discaloried-item-calories" style="display: none;">${item.basecalories} cal</div>
         `;
         
         // Add drag and drop event listeners
@@ -516,7 +518,7 @@ function handleDiscaloriedWin() {
     const allItems = document.querySelectorAll('.discaloried-item');
     allItems.forEach(element => {
         const calorieElement = element.querySelector('.discaloried-item-calories');
-        calorieElement.style.display = 'block';
+        calorieElement.style.display = 'inline';
     });
     
     // Select a random congratulatory title
@@ -556,18 +558,13 @@ function handleDiscaloriedLose() {
     const allItems = document.querySelectorAll('.discaloried-item');
     allItems.forEach(element => {
         const calorieElement = element.querySelector('.discaloried-item-calories');
-        calorieElement.style.display = 'block';
+        calorieElement.style.display = 'inline';
     });
     
     // Show correct order
     const correctOrder = discaloriedItemsData.correctOrder;
-    let orderText = 'Correct order (most to least calories):\n';
-    correctOrder.forEach((item, index) => {
-        orderText += `${index + 1}. ${item.name} (${item.basecalories} cal)\n`;
-    });
-    
     // Display game over message
-    discaloriedResult.textContent = `😢 Better luck next time! ${orderText}`;
+    discaloriedResult.textContent = `😢 Better luck next time!`;
     discaloriedResult.classList.add('game-over');
     
     // Add button to play again
