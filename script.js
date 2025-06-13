@@ -339,7 +339,7 @@ function selectDiscaloriedItems() {
     discaloriedItemsData.correctOrder = correctOrder;
 }
 
-// Select 5 random items for Discaloried Hard Mode with max 500 calorie difference
+// Select 5 random items for Discaloried Hard Mode with 300-700 calorie difference and no duplicate calories
 function selectDiscaloriedHardItems() {
     // Flatten all products from all categories
     const allProducts = menuData.categories.reduce((products, category) => {
@@ -373,45 +373,71 @@ function selectDiscaloriedHardItems() {
         const startIndex = Math.floor(Math.random() * (sortedProducts.length - 4));
         const candidateItems = [];
         
-        // Try to find 5 items within 500 calorie range starting from this item
+        // Try to find items within 700 calorie range starting from this item
         const baseCalories = parseInt(sortedProducts[startIndex].basecalories);
         
-        for (let i = startIndex; i < sortedProducts.length && candidateItems.length < 5; i++) {
+        for (let i = startIndex; i < sortedProducts.length; i++) {
             const itemCalories = parseInt(sortedProducts[i].basecalories);
-            if (itemCalories - baseCalories <= 500) {
+            if (itemCalories - baseCalories <= 700) {
                 candidateItems.push(sortedProducts[i]);
             } else {
                 break; // Items are sorted, so no point checking further
             }
         }
         
-        // If we found at least 5 items within range, select 5 randomly from them
+        // If we found enough items within range, try to select 5 with constraints
         if (candidateItems.length >= 5) {
-            const usedIndices = new Set();
             selectedItems = [];
+            const usedCalories = new Set();
+            let selectionAttempts = 0;
+            const maxSelectionAttempts = 100;
             
-            while (selectedItems.length < 5) {
+            while (selectedItems.length < 5 && selectionAttempts < maxSelectionAttempts) {
+                selectionAttempts++;
                 const randomIndex = Math.floor(Math.random() * candidateItems.length);
-                if (!usedIndices.has(randomIndex)) {
-                    usedIndices.add(randomIndex);
-                    selectedItems.push(candidateItems[randomIndex]);
+                const candidate = candidateItems[randomIndex];
+                const candidateCalories = parseInt(candidate.basecalories);
+                
+                // Check if this calorie amount is already used
+                if (!usedCalories.has(candidateCalories)) {
+                    selectedItems.push(candidate);
+                    usedCalories.add(candidateCalories);
                 }
             }
-            break;
+            
+            // Check if we have 5 items and they meet the min/max difference constraints
+            if (selectedItems.length === 5) {
+                const calories = selectedItems.map(item => parseInt(item.basecalories));
+                const minCal = Math.min(...calories);
+                const maxCal = Math.max(...calories);
+                const difference = maxCal - minCal;
+                
+                // Must have at least 300 calorie difference and at most 700
+                if (difference >= 300 && difference <= 700) {
+                    break;
+                }
+            }
+            
+            // Reset for next attempt
+            selectedItems = [];
         }
     }
 
-    // Fallback: if we couldn't find items within 500 calorie range, use regular selection
+    // Fallback: if we couldn't find items within constraints, use relaxed selection
     if (selectedItems.length < 5) {
-        console.warn('Could not find 5 items within 500 calorie range, falling back to regular selection');
-        const usedIndices = new Set();
+        console.warn('Could not find 5 items within 300-700 calorie range with unique calories, falling back to regular selection');
+        const usedCalories = new Set();
         selectedItems = [];
         
         while (selectedItems.length < 5 && selectedItems.length < validProducts.length) {
             const randomIndex = Math.floor(Math.random() * validProducts.length);
-            if (!usedIndices.has(randomIndex)) {
-                usedIndices.add(randomIndex);
-                selectedItems.push(validProducts[randomIndex]);
+            const candidate = validProducts[randomIndex];
+            const candidateCalories = parseInt(candidate.basecalories);
+            
+            // Still enforce no duplicate calories even in fallback
+            if (!usedCalories.has(candidateCalories)) {
+                usedCalories.add(candidateCalories);
+                selectedItems.push(candidate);
             }
         }
     }
@@ -436,7 +462,8 @@ function selectDiscaloriedHardItems() {
     const calories = selectedItems.map(item => parseInt(item.basecalories));
     const minCal = Math.min(...calories);
     const maxCal = Math.max(...calories);
-    console.log(`Discaloried Hard Mode: Selected items with calorie range ${minCal}-${maxCal} (difference: ${maxCal - minCal})`);
+    const uniqueCalories = new Set(calories);
+    console.log(`Discaloried Hard Mode: Selected items with calorie range ${minCal}-${maxCal} (difference: ${maxCal - minCal}), unique calories: ${uniqueCalories.size === 5 ? 'Yes' : 'No'}`);
 }
 
 // Display Discaloried items
