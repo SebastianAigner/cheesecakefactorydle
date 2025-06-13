@@ -99,6 +99,13 @@
     object-fit: cover;
     border-radius: 6px;
     margin-right: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.discaloried-item img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .discaloried-item-info {
@@ -171,6 +178,74 @@
 
 .hidden {
     display: none;
+}
+
+/* Image Overlay Styles */
+.image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-overlay-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+}
+
+.image-overlay.show .image-overlay-content {
+    transform: scale(1);
+}
+
+.image-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.image-overlay-close {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 40px;
+    height: 40px;
+    background-color: #e31837;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    z-index: 2001;
+}
+
+.image-overlay-close:hover {
+    background-color: #c01530;
+    transform: scale(1.1);
 }
 
 body {
@@ -415,171 +490,4 @@ body {
     max-width: 300px;
     height: auto;
     border-radius: 8px;
-}
-
-/* Discaloried Game Styles */
-.discaloried-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.discaloried-header h2 {
-    color: #e31837;
-    margin-bottom: 10px;
-}
-
-.discaloried-boxes {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.discaloried-box {
-    min-height: auto;
-    padding: 5px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.discaloried-box.drag-over {
-    background-color: #e8f4fd;
-    border-color: #007bff;
-    border-style: solid;
-}
-
-.discaloried-box.locked {
-    background-color: #dff0d8;
-    border-color: #3c763d;
-    border-style: solid;
-}
-
-.discaloried-box:empty::before {
-    content: "Drop item here";
-    color: #999;
-    font-style: italic;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.discaloried-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    margin: 0;
-    background-color: #f9f9f9;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    cursor: move;
-    transition: all 0.3s, transform 0.5s ease-in-out;
-    user-select: none;
-    width: 100%;
-    position: relative;
-}
-
-.discaloried-item:hover {
-    background-color: #f0f0f0;
-    border-color: #ccc;
-}
-
-.discaloried-item.dragging {
-    opacity: 0.5;
-    transform: rotate(5deg);
-}
-
-.discaloried-item.locked {
-    background-color: #dff0d8;
-    border-color: #3c763d;
-    cursor: default;
-}
-
-.discaloried-item.locked:hover {
-    background-color: #dff0d8;
-    border-color: #3c763d;
-}
-
-.discaloried-item img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-right: 15px;
-}
-
-.discaloried-item-info {
-    flex: 1;
-}
-
-.discaloried-item-name {
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.discaloried-item-description {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.discaloried-item-calories {
-    font-weight: bold;
-    color: #e31837;
-    font-size: 0.9rem;
-    background-color: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    border: 1px solid #e31837;
-}
-
-.guess-button {
-    display: block;
-    margin: 20px auto;
-    padding: 12px 30px;
-    background-color: #e31837;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-.guess-button:hover {
-    background-color: #c01530;
-}
-
-.guess-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* Shake animation for incorrect items */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-}
-
-.shake {
-    animation: shake 0.5s ease-in-out;
-}
-
-/* Animation for swapping items */
-.discaloried-item.animating {
-    z-index: 1000;
-    pointer-events: none;
-}
-
-.hidden {
-    display: none;
 }

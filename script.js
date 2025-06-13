@@ -38,6 +38,11 @@ const feedback = document.getElementById('feedback');
 const guessesList = document.getElementById('guesses-list');
 const resultMessage = document.getElementById('result-message');
 
+// Image overlay DOM elements
+const imageOverlay = document.getElementById('image-overlay');
+const overlayImage = document.getElementById('overlay-image');
+const imageOverlayClose = document.getElementById('image-overlay-close');
+
 // Game mode DOM elements
 const classicModeBtn = document.getElementById('classic-mode-btn');
 const discaloriedModeBtn = document.getElementById('discaloried-mode-btn');
@@ -77,6 +82,15 @@ async function initGame() {
         
         // Set up Discaloried game listeners
         discaloriedGuessBtn.addEventListener('click', handleDiscaloriedGuess);
+        
+        // Set up image overlay listeners
+        imageOverlayClose.addEventListener('click', closeImageOverlay);
+        imageOverlay.addEventListener('click', function(e) {
+            if (e.target === imageOverlay) {
+                closeImageOverlay();
+            }
+        });
+        overlayImage.addEventListener('click', closeImageOverlay);
     } catch (error) {
         console.error('Error initializing game:', error);
         feedback.textContent = 'Error loading menu data. Please refresh the page.';
@@ -485,7 +499,7 @@ function displayDiscaloriedItems() {
         const imageUrl = `${menuData.imagepath}${item.imagefilename}`;
         
         itemElement.innerHTML = `
-            <img src="${imageUrl}" alt="${item.name}">
+            <img src="${imageUrl}" alt="${item.name}" class="discaloried-item-image">
             <div class="discaloried-item-info">
                 <div class="discaloried-item-name">
                     <span class="item-name-text">${item.name}</span>
@@ -498,6 +512,13 @@ function displayDiscaloriedItems() {
         // Add drag and drop event listeners
         itemElement.addEventListener('dragstart', handleDragStart);
         itemElement.addEventListener('dragend', handleDragEnd);
+        
+        // Add image click listener for overlay
+        const imageElement = itemElement.querySelector('.discaloried-item-image');
+        imageElement.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent drag events
+            showImageOverlay(imageUrl, item.name);
+        });
         
         // Place item in corresponding box
         const box = boxes[index];
@@ -795,6 +816,19 @@ function addDiscaloriedPlayAgainButton() {
 
     discaloriedResult.appendChild(document.createElement('br'));
     discaloriedResult.appendChild(playAgainButton);
+}
+
+// Image overlay functions
+function showImageOverlay(imageSrc, altText) {
+    overlayImage.src = imageSrc;
+    overlayImage.alt = altText;
+    imageOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closeImageOverlay() {
+    imageOverlay.classList.remove('show');
+    document.body.style.overflow = ''; // Restore scrolling
 }
 
 // Start the game when the page loads
