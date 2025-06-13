@@ -430,12 +430,12 @@ function handleDrop(e) {
         const existingItem = dropBox.querySelector('.discaloried-item');
         
         if (existingItem && existingItem !== draggedElement) {
-            // Swap items between boxes
-            sourceBox.appendChild(existingItem);
+            // Animate swap between boxes
+            animateSwap(draggedElement, existingItem, sourceBox, dropBox);
+        } else {
+            // Animate move to empty box
+            animateMove(draggedElement, dropBox);
         }
-        
-        // Move dragged item to drop box
-        dropBox.appendChild(draggedElement);
     }
 }
 
@@ -445,6 +445,74 @@ function handleDragEnd(e) {
     document.querySelectorAll('.discaloried-box').forEach(box => {
         box.classList.remove('drag-over');
     });
+}
+
+// Animation functions for smooth swapping
+function animateSwap(draggedElement, existingItem, sourceBox, dropBox) {
+    // Get initial positions
+    const draggedRect = draggedElement.getBoundingClientRect();
+    const existingRect = existingItem.getBoundingClientRect();
+    
+    // Calculate the distance to move
+    const draggedDeltaX = existingRect.left - draggedRect.left;
+    const draggedDeltaY = existingRect.top - draggedRect.top;
+    const existingDeltaX = draggedRect.left - existingRect.left;
+    const existingDeltaY = draggedRect.top - existingRect.top;
+    
+    // Add animating class to prevent interactions
+    draggedElement.classList.add('animating');
+    existingItem.classList.add('animating');
+    
+    // Apply initial transform to move items to their target positions
+    draggedElement.style.transform = `translate(${draggedDeltaX}px, ${draggedDeltaY}px)`;
+    existingItem.style.transform = `translate(${existingDeltaX}px, ${existingDeltaY}px)`;
+    
+    // After animation completes, actually move the DOM elements
+    setTimeout(() => {
+        // Move elements in DOM
+        sourceBox.appendChild(existingItem);
+        dropBox.appendChild(draggedElement);
+        
+        // Reset transforms and remove animating class
+        draggedElement.style.transform = '';
+        existingItem.style.transform = '';
+        draggedElement.classList.remove('animating');
+        existingItem.classList.remove('animating');
+    }, 500); // Match the CSS transition duration
+}
+
+function animateMove(draggedElement, dropBox) {
+    // Get initial position
+    const draggedRect = draggedElement.getBoundingClientRect();
+    
+    // Temporarily place element in target box to get target position
+    const tempPlaceholder = document.createElement('div');
+    tempPlaceholder.style.height = draggedElement.offsetHeight + 'px';
+    tempPlaceholder.style.visibility = 'hidden';
+    dropBox.appendChild(tempPlaceholder);
+    
+    const targetRect = tempPlaceholder.getBoundingClientRect();
+    dropBox.removeChild(tempPlaceholder);
+    
+    // Calculate the distance to move
+    const deltaX = targetRect.left - draggedRect.left;
+    const deltaY = targetRect.top - draggedRect.top;
+    
+    // Add animating class
+    draggedElement.classList.add('animating');
+    
+    // Apply transform to move to target position
+    draggedElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    
+    // After animation completes, actually move the DOM element
+    setTimeout(() => {
+        // Move element in DOM
+        dropBox.appendChild(draggedElement);
+        
+        // Reset transform and remove animating class
+        draggedElement.style.transform = '';
+        draggedElement.classList.remove('animating');
+    }, 500); // Match the CSS transition duration
 }
 
 // Handle Discaloried guess

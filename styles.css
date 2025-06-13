@@ -66,9 +66,10 @@
     border: 2px solid #ddd;
     border-radius: 8px;
     cursor: move;
-    transition: all 0.3s;
+    transition: all 0.3s, transform 0.5s ease-in-out;
     user-select: none;
     width: 100%;
+    position: relative;
 }
 
 .discaloried-item:hover {
@@ -160,6 +161,12 @@
 
 .shake {
     animation: shake 0.5s ease-in-out;
+}
+
+/* Animation for swapping items */
+.discaloried-item.animating {
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .hidden {
@@ -470,9 +477,10 @@ body {
     border: 2px solid #ddd;
     border-radius: 8px;
     cursor: move;
-    transition: all 0.3s;
+    transition: all 0.3s, transform 0.5s ease-in-out;
     user-select: none;
     width: 100%;
+    position: relative;
 }
 
 .discaloried-item:hover {
@@ -564,6 +572,12 @@ body {
 
 .shake {
     animation: shake 0.5s ease-in-out;
+}
+
+/* Animation for swapping items */
+.discaloried-item.animating {
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .hidden {
