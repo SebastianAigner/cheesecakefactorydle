@@ -442,6 +442,12 @@ body {
     color: #3c763d;
 }
 
+/* Styling for "right on the cheese" guesses */
+.right-on-cheese {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
 /* Styling for incorrect guess after 6 attempts */
 .game-over {
     background-color: #f2dede;

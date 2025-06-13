@@ -193,18 +193,33 @@ function handleGuess() {
 function addGuessToList(guess, actualCalories) {
     const listItem = document.createElement('li');
 
-    // Determine if guess is higher or lower
-    const comparison = guess > actualCalories 
-        ? '⬇️ Too high'
-        : guess < actualCalories 
-            ? '⬆️ Too low'
-            : '✅ Correct!';
+    // Calculate margin of error for feedback (same logic as in handleGuess)
+    const difference = Math.abs(guess - actualCalories);
+    const allowedMargin = Math.max(Math.min(actualCalories * 0.1, 100), 10);
+    const isWithinMargin = difference <= allowedMargin;
+
+    // Determine if guess is higher, lower, within margin, or correct
+    let comparison;
+    if (guess === actualCalories) {
+        comparison = '✅ Correct!';
+    } else if (isWithinMargin) {
+        comparison = '🧀 Right on the cheese!';
+    } else if (guess > actualCalories) {
+        comparison = '⬇️ Too high';
+    } else {
+        comparison = '⬆️ Too low';
+    }
 
     // Create guess text
     listItem.innerHTML = `
         <span>Guess #${guessCount}: ${guess} calories</span>
         <span>${comparison}</span>
     `;
+
+    // Add styling for "right on the cheese" guesses
+    if (isWithinMargin && guess !== actualCalories) {
+        listItem.classList.add('right-on-cheese');
+    }
 
     // Add to list
     guessesList.prepend(listItem);
@@ -237,6 +252,9 @@ function handleCorrectGuess(actualCalories) {
 
     // Add the celebrate class
     resultMessage.classList.add('celebrate');
+
+    // Scroll the congratulatory message into view
+    resultMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     // Add button to play again
     addPlayAgainButton();
@@ -780,6 +798,9 @@ function handleDiscaloriedWin() {
     
     // Add the celebrate class
     discaloriedResult.classList.add('celebrate');
+    
+    // Scroll the congratulatory message into view
+    discaloriedResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
     // Add button to play again
     addDiscaloriedPlayAgainButton();
