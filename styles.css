@@ -184,6 +184,16 @@ body {
 .game-mode-selection {
     text-align: center;
     margin-bottom: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Show game mode selection when hovering over logo */
+.logo-image:hover + .game-mode-selection,
+.game-mode-selection:hover {
+    opacity: 1;
+    visibility: visible;
 }
 
 .mode-button {
