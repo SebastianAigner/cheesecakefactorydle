@@ -311,10 +311,7 @@ function selectDiscaloriedItems() {
         const randomIndex = Math.floor(Math.random() * validProducts.length);
         if (!usedIndices.has(randomIndex)) {
             usedIndices.add(randomIndex);
-            selectedItems.push({
-                ...validProducts[randomIndex],
-                originalIndex: selectedItems.length
-            });
+            selectedItems.push(validProducts[randomIndex]);
         }
     }
     
@@ -337,13 +334,19 @@ function selectDiscaloriedItems() {
 
 // Display Discaloried items
 function displayDiscaloriedItems() {
-    discaloriedItems.innerHTML = '';
+    // Clear all boxes
+    const boxes = document.querySelectorAll('.discaloried-box');
+    boxes.forEach(box => {
+        box.innerHTML = '';
+        box.classList.remove('locked');
+    });
     
+    // Place items in boxes
     discaloriedItemsData.forEach((item, index) => {
         const itemElement = document.createElement('div');
         itemElement.className = 'discaloried-item';
         itemElement.draggable = true;
-        itemElement.dataset.itemId = item.originalIndex;
+        itemElement.dataset.itemId = item.id;
         
         const imageUrl = `${menuData.imagepath}${item.imagefilename}`;
         
@@ -358,11 +361,19 @@ function displayDiscaloriedItems() {
         
         // Add drag and drop event listeners
         itemElement.addEventListener('dragstart', handleDragStart);
-        itemElement.addEventListener('dragover', handleDragOver);
-        itemElement.addEventListener('drop', handleDrop);
         itemElement.addEventListener('dragend', handleDragEnd);
         
-        discaloriedItems.appendChild(itemElement);
+        // Place item in corresponding box
+        const box = boxes[index];
+        box.appendChild(itemElement);
+    });
+    
+    // Add drag and drop listeners to boxes
+    boxes.forEach(box => {
+        box.addEventListener('dragover', handleDragOver);
+        box.addEventListener('drop', handleDrop);
+        box.addEventListener('dragenter', handleDragEnter);
+        box.addEventListener('dragleave', handleDragLeave);
     });
 }
 
@@ -381,66 +392,93 @@ function handleDragOver(e) {
     e.preventDefault();
 }
 
+function handleDragEnter(e) {
+    e.preventDefault();
+    const box = e.target.closest('.discaloried-box');
+    if (box && !box.classList.contains('locked')) {
+        box.classList.add('drag-over');
+    }
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    const box = e.target.closest('.discaloried-box');
+    if (box) {
+        box.classList.remove('drag-over');
+    }
+}
+
 function handleDrop(e) {
     e.preventDefault();
     
     const draggedId = e.dataTransfer.getData('text/plain');
     const draggedElement = document.querySelector(`[data-item-id="${draggedId}"]`);
-    const dropTarget = e.target.closest('.discaloried-item');
+    const dropBox = e.target.closest('.discaloried-box');
     
-    if (draggedElement && dropTarget && draggedElement !== dropTarget) {
-        // Don't allow dropping on locked items
-        if (lockedItems.has(dropTarget.dataset.itemId)) {
+    // Remove drag-over class
+    dropBox.classList.remove('drag-over');
+    
+    if (draggedElement && dropBox) {
+        // Don't allow dropping on locked boxes
+        if (dropBox.classList.contains('locked')) {
             return;
         }
         
-        const container = discaloriedItems;
-        const allItems = Array.from(container.children);
-        const draggedIndex = allItems.indexOf(draggedElement);
-        const dropIndex = allItems.indexOf(dropTarget);
+        const sourceBox = draggedElement.closest('.discaloried-box');
+        const existingItem = dropBox.querySelector('.discaloried-item');
         
-        if (draggedIndex < dropIndex) {
-            container.insertBefore(draggedElement, dropTarget.nextSibling);
-        } else {
-            container.insertBefore(draggedElement, dropTarget);
+        if (existingItem && existingItem !== draggedElement) {
+            // Swap items between boxes
+            sourceBox.appendChild(existingItem);
         }
+        
+        // Move dragged item to drop box
+        dropBox.appendChild(draggedElement);
     }
 }
 
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
+    // Remove any remaining drag-over classes
+    document.querySelectorAll('.discaloried-box').forEach(box => {
+        box.classList.remove('drag-over');
+    });
 }
 
 // Handle Discaloried guess
 function handleDiscaloriedGuess() {
     if (!discaloriedGameActive) return;
     
-    const currentOrder = Array.from(discaloriedItems.children);
+    const boxes = document.querySelectorAll('.discaloried-box');
     const correctOrder = discaloriedItemsData.correctOrder;
     
     let correctCount = 0;
     const newlyLocked = [];
     
-    // Check each position
-    currentOrder.forEach((element, index) => {
-        const itemId = element.dataset.itemId;
-        const currentItem = discaloriedItemsData.find(item => item.originalIndex.toString() === itemId);
+    // Check each box
+    boxes.forEach((box, index) => {
+        const item = box.querySelector('.discaloried-item');
+        if (!item) return;
+        
+        const itemId = item.dataset.itemId;
+        const currentItem = discaloriedItemsData.find(item => item.id === itemId);
         const correctItem = correctOrder[index];
         
-        if (currentItem.originalIndex === correctItem.originalIndex) {
+        if (currentItem.id === correctItem.id) {
             if (!lockedItems.has(itemId)) {
                 // Newly correct item
                 lockedItems.add(itemId);
-                element.classList.add('locked');
-                element.draggable = false;
-                newlyLocked.push(element);
+                box.classList.add('locked');
+                item.classList.add('locked');
+                item.draggable = false;
+                newlyLocked.push(item);
                 correctCount++;
             }
         } else if (!lockedItems.has(itemId)) {
             // Incorrect item - add shake animation
-            element.classList.add('shake');
+            item.classList.add('shake');
             setTimeout(() => {
-                element.classList.remove('shake');
+                item.classList.remove('shake');
             }, 500);
         }
     });
@@ -475,7 +513,7 @@ function handleDiscaloriedWin() {
     discaloriedGuessBtn.disabled = true;
     
     // Show all calories
-    const allItems = Array.from(discaloriedItems.children);
+    const allItems = document.querySelectorAll('.discaloried-item');
     allItems.forEach(element => {
         const calorieElement = element.querySelector('.discaloried-item-calories');
         calorieElement.style.display = 'block';
@@ -515,7 +553,7 @@ function handleDiscaloriedLose() {
     discaloriedGuessBtn.disabled = true;
     
     // Show all calories
-    const allItems = Array.from(discaloriedItems.children);
+    const allItems = document.querySelectorAll('.discaloried-item');
     allItems.forEach(element => {
         const calorieElement = element.querySelector('.discaloried-item-calories');
         calorieElement.style.display = 'block';

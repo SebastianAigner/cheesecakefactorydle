@@ -17,8 +17,45 @@
     margin-bottom: 10px;
 }
 
-.discaloried-items {
+.discaloried-boxes {
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.discaloried-box {
+    min-height: 100px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.discaloried-box.drag-over {
+    background-color: #e8f4fd;
+    border-color: #007bff;
+    border-style: solid;
+}
+
+.discaloried-box.locked {
+    background-color: #dff0d8;
+    border-color: #3c763d;
+    border-style: solid;
+}
+
+.discaloried-box:empty::before {
+    content: "Drop item here";
+    color: #999;
+    font-style: italic;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .discaloried-item {
@@ -368,8 +405,45 @@ body {
     margin-bottom: 10px;
 }
 
-.discaloried-items {
+.discaloried-boxes {
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.discaloried-box {
+    min-height: 100px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.discaloried-box.drag-over {
+    background-color: #e8f4fd;
+    border-color: #007bff;
+    border-style: solid;
+}
+
+.discaloried-box.locked {
+    background-color: #dff0d8;
+    border-color: #3c763d;
+    border-style: solid;
+}
+
+.discaloried-box:empty::before {
+    content: "Drop item here";
+    color: #999;
+    font-style: italic;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .discaloried-item {
