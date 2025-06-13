@@ -74,6 +74,9 @@ async function initGame() {
                 handleGuess();
             }
         });
+        
+        // Add input event listener for button color changes
+        calorieGuess.addEventListener('input', updateButtonColor);
 
         // Set up game mode switching
         classicModeBtn.addEventListener('click', () => switchGameMode('classic'));
@@ -95,6 +98,81 @@ async function initGame() {
         console.error('Error initializing game:', error);
         feedback.textContent = 'Error loading menu data. Please refresh the page.';
     }
+}
+
+// Variables for rainbow animation
+let rainbowAnimationId = null;
+
+// Update button color based on input value
+function updateButtonColor() {
+    const guess = parseInt(calorieGuess.value.trim());
+    
+    // Clear any existing rainbow animation
+    if (rainbowAnimationId) {
+        clearInterval(rainbowAnimationId);
+        rainbowAnimationId = null;
+    }
+    
+    if (isNaN(guess) || calorieGuess.value.trim() === '') {
+        // No input or invalid input - keep original red
+        resetButtonColor();
+        return;
+    }
+    
+    if (guess > 2000) {
+        // Above 2000 - rainbow animation
+        startRainbowAnimation();
+    } else {
+        // 0-2000 range - interpolate between green, yellow, red
+        const color = interpolateColor(guess, 2000);
+        submitGuess.style.backgroundColor = color;
+        submitGuess.style.transition = 'background-color 0.3s';
+    }
+}
+
+// Reset button to original red color
+function resetButtonColor() {
+    if (rainbowAnimationId) {
+        clearInterval(rainbowAnimationId);
+        rainbowAnimationId = null;
+    }
+    submitGuess.style.backgroundColor = '#e31837';
+    submitGuess.style.transition = 'background-color 0.3s';
+}
+
+// Interpolate color between green (low), yellow (medium), red (high)
+function interpolateColor(value, maxValue) {
+    // Normalize value to 0-1 range
+    const normalized = Math.min(value / maxValue, 1);
+    
+    let r, g, b;
+    
+    if (normalized <= 0.5) {
+        // Green to Yellow (0 to 0.5)
+        const t = normalized * 2; // 0 to 1
+        r = Math.round(0 + (255 - 0) * t); // 0 to 255
+        g = 255; // Stay at 255
+        b = 0; // Stay at 0
+    } else {
+        // Yellow to Red (0.5 to 1)
+        const t = (normalized - 0.5) * 2; // 0 to 1
+        r = 255; // Stay at 255
+        g = Math.round(255 - 255 * t); // 255 to 0
+        b = 0; // Stay at 0
+    }
+    
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+// Start rainbow animation for values above 2000
+function startRainbowAnimation() {
+    let hue = 0;
+    rainbowAnimationId = setInterval(() => {
+        hue = (hue + 5) % 360; // Increment hue and wrap around
+        const color = `hsl(${hue}, 100%, 50%)`;
+        submitGuess.style.backgroundColor = color;
+        submitGuess.style.transition = 'none'; // Remove transition for smooth animation
+    }, 50); // Update every 50ms for smooth animation
 }
 
 // Select a random food item from the menu
@@ -120,6 +198,9 @@ function selectRandomItem() {
 
     // Display the item
     displayItem(currentItem);
+    
+    // Reset button color when starting new game
+    resetButtonColor();
 }
 
 // Display the current food item
@@ -177,6 +258,9 @@ function handleGuess() {
     // Clear input field
     calorieGuess.value = '';
     calorieGuess.focus();
+    
+    // Reset button color to original red
+    resetButtonColor();
 
     // Check game state
     if (isCorrect) {
