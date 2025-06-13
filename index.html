@@ -30,7 +30,15 @@
 <body>
     <div class="container">
         <img src="CFDle_logo.png" alt="Cheesecakefactorydle Logo" class="logo-image">
-        <div class="game-container">
+        
+        <!-- Game Mode Selection -->
+        <div class="game-mode-selection">
+            <button id="classic-mode-btn" class="mode-button active">Classic Mode</button>
+            <button id="discaloried-mode-btn" class="mode-button">Discaloried</button>
+        </div>
+        
+        <!-- Classic Game Container -->
+        <div id="classic-game" class="game-container">
             <div class="food-display">
                 <img id="food-image" src="" alt="Food item from Cheesecake Factory">
                 <h2 id="food-name"></h2>
@@ -49,6 +57,19 @@
                 <ul id="guesses-list"></ul>
             </div>
             <div id="result-message" class="result-message"></div>
+        </div>
+        
+        <!-- Discaloried Game Container -->
+        <div id="discaloried-game" class="game-container hidden">
+            <div class="discaloried-header">
+                <h2>Discaloried Mode</h2>
+                <p>Order these 5 dishes from <strong>most calories</strong> to <strong>least calories</strong></p>
+                <p>Guesses remaining: <span id="discaloried-guesses">5</span></p>
+            </div>
+            <div id="discaloried-items" class="discaloried-items"></div>
+            <button id="discaloried-guess-btn" class="guess-button">Submit Order</button>
+            <div id="discaloried-feedback" class="feedback"></div>
+            <div id="discaloried-result" class="result-message"></div>
         </div>
     </div>
     <footer class="footer">
