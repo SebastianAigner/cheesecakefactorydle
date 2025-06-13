@@ -125,8 +125,28 @@ function updateButtonColor() {
     } else {
         // 0-2000 range - interpolate between green, yellow, red
         const color = interpolateColor(guess, 2000);
+        
+        // Extract RGB values to determine appropriate text color
+        const normalized = Math.min(guess / 2000, 1);
+        let r, g, b;
+        
+        if (normalized <= 0.5) {
+            const t = normalized * 2;
+            r = Math.round(0 + (255 - 0) * t);
+            g = 255;
+            b = 0;
+        } else {
+            const t = (normalized - 0.5) * 2;
+            r = 255;
+            g = Math.round(255 - 255 * t);
+            b = 0;
+        }
+        
+        const textColor = getTextColorForBackground(r, g, b);
+        
         submitGuess.style.backgroundColor = color;
-        submitGuess.style.transition = 'background-color 0.3s';
+        submitGuess.style.color = textColor;
+        submitGuess.style.transition = 'background-color 0.3s, color 0.3s';
     }
 }
 
@@ -137,7 +157,8 @@ function resetButtonColor() {
         rainbowAnimationId = null;
     }
     submitGuess.style.backgroundColor = '#e31837';
-    submitGuess.style.transition = 'background-color 0.3s';
+    submitGuess.style.color = '#ffffff';
+    submitGuess.style.transition = 'background-color 0.3s, color 0.3s';
 }
 
 // Interpolate color between green (low), yellow (medium), red (high)
@@ -164,15 +185,60 @@ function interpolateColor(value, maxValue) {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
+// Calculate appropriate text color based on background brightness
+function getTextColorForBackground(r, g, b) {
+    // Calculate relative luminance using the formula for perceived brightness
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Use dark text for bright backgrounds, white text for dark backgrounds
+    return luminance > 0.6 ? '#000000' : '#ffffff';
+}
+
 // Start rainbow animation for values above 2000
 function startRainbowAnimation() {
     let hue = 0;
     rainbowAnimationId = setInterval(() => {
         hue = (hue + 5) % 360; // Increment hue and wrap around
         const color = `hsl(${hue}, 100%, 50%)`;
+        
+        // Convert HSL to RGB to determine appropriate text color
+        const rgb = hslToRgb(hue / 360, 1, 0.5);
+        const textColor = getTextColorForBackground(rgb.r, rgb.g, rgb.b);
+        
         submitGuess.style.backgroundColor = color;
+        submitGuess.style.color = textColor;
         submitGuess.style.transition = 'none'; // Remove transition for smooth animation
     }, 50); // Update every 50ms for smooth animation
+}
+
+// Convert HSL to RGB
+function hslToRgb(h, s, l) {
+    let r, g, b;
+
+    if (s === 0) {
+        r = g = b = l; // achromatic
+    } else {
+        const hue2rgb = (p, q, t) => {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1/6) return p + (q - p) * 6 * t;
+            if (t < 1/2) return q;
+            if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+        };
+
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+    };
 }
 
 // Select a random food item from the menu
