@@ -6,7 +6,7 @@ const MAX_GUESSES = 6;
 let gameActive = true;
 
 // Game mode variables
-let currentGameMode = 'classic'; // 'classic' or 'discaloried'
+let currentGameMode = 'classic'; // 'classic', 'discaloried', or 'discaloried-hard'
 
 // Discaloried game variables
 let discaloriedItemsData = [];
@@ -41,6 +41,7 @@ const resultMessage = document.getElementById('result-message');
 // Game mode DOM elements
 const classicModeBtn = document.getElementById('classic-mode-btn');
 const discaloriedModeBtn = document.getElementById('discaloried-mode-btn');
+const discaloriedHardModeBtn = document.getElementById('discaloried-hard-mode-btn');
 const classicGame = document.getElementById('classic-game');
 const discaloriedGame = document.getElementById('discaloried-game');
 
@@ -72,6 +73,7 @@ async function initGame() {
         // Set up game mode switching
         classicModeBtn.addEventListener('click', () => switchGameMode('classic'));
         discaloriedModeBtn.addEventListener('click', () => switchGameMode('discaloried'));
+        discaloriedHardModeBtn.addEventListener('click', () => switchGameMode('discaloried-hard'));
         
         // Set up Discaloried game listeners
         discaloriedGuessBtn.addEventListener('click', handleDiscaloriedGuess);
@@ -256,12 +258,13 @@ function switchGameMode(mode) {
     // Update button states
     classicModeBtn.classList.toggle('active', mode === 'classic');
     discaloriedModeBtn.classList.toggle('active', mode === 'discaloried');
+    discaloriedHardModeBtn.classList.toggle('active', mode === 'discaloried-hard');
     
     // Show/hide game containers
     classicGame.classList.toggle('hidden', mode !== 'classic');
-    discaloriedGame.classList.toggle('hidden', mode !== 'discaloried');
+    discaloriedGame.classList.toggle('hidden', mode !== 'discaloried' && mode !== 'discaloried-hard');
     
-    if (mode === 'discaloried') {
+    if (mode === 'discaloried' || mode === 'discaloried-hard') {
         initDiscaloriedGame();
     }
 }
@@ -279,7 +282,11 @@ function initDiscaloriedGame() {
     discaloriedGuessBtn.disabled = false;
     
     // Select 5 random items
-    selectDiscaloriedItems();
+    if (currentGameMode === 'discaloried-hard') {
+        selectDiscaloriedHardItems();
+    } else {
+        selectDiscaloriedItems();
+    }
     
     // Display items
     displayDiscaloriedItems();
@@ -330,6 +337,106 @@ function selectDiscaloriedItems() {
     // Store both arrays
     discaloriedItemsData = shuffledItems;
     discaloriedItemsData.correctOrder = correctOrder;
+}
+
+// Select 5 random items for Discaloried Hard Mode with max 500 calorie difference
+function selectDiscaloriedHardItems() {
+    // Flatten all products from all categories
+    const allProducts = menuData.categories.reduce((products, category) => {
+        if (category.products && Array.isArray(category.products)) {
+            return products.concat(category.products);
+        }
+        return products;
+    }, []);
+
+    // Filter products to only include those with calories and images
+    const validProducts = allProducts.filter(product => 
+        product.basecalories && 
+        product.imagefilename && 
+        product.name &&
+        parseInt(product.basecalories) > 0
+    );
+
+    // Sort products by calories for easier selection
+    const sortedProducts = validProducts.sort((a, b) => 
+        parseInt(a.basecalories) - parseInt(b.basecalories)
+    );
+
+    let selectedItems = [];
+    let attempts = 0;
+    const maxAttempts = 1000; // Prevent infinite loop
+
+    while (selectedItems.length < 5 && attempts < maxAttempts) {
+        attempts++;
+        
+        // Pick a random starting item
+        const startIndex = Math.floor(Math.random() * (sortedProducts.length - 4));
+        const candidateItems = [];
+        
+        // Try to find 5 items within 500 calorie range starting from this item
+        const baseCalories = parseInt(sortedProducts[startIndex].basecalories);
+        
+        for (let i = startIndex; i < sortedProducts.length && candidateItems.length < 5; i++) {
+            const itemCalories = parseInt(sortedProducts[i].basecalories);
+            if (itemCalories - baseCalories <= 500) {
+                candidateItems.push(sortedProducts[i]);
+            } else {
+                break; // Items are sorted, so no point checking further
+            }
+        }
+        
+        // If we found at least 5 items within range, select 5 randomly from them
+        if (candidateItems.length >= 5) {
+            const usedIndices = new Set();
+            selectedItems = [];
+            
+            while (selectedItems.length < 5) {
+                const randomIndex = Math.floor(Math.random() * candidateItems.length);
+                if (!usedIndices.has(randomIndex)) {
+                    usedIndices.add(randomIndex);
+                    selectedItems.push(candidateItems[randomIndex]);
+                }
+            }
+            break;
+        }
+    }
+
+    // Fallback: if we couldn't find items within 500 calorie range, use regular selection
+    if (selectedItems.length < 5) {
+        console.warn('Could not find 5 items within 500 calorie range, falling back to regular selection');
+        const usedIndices = new Set();
+        selectedItems = [];
+        
+        while (selectedItems.length < 5 && selectedItems.length < validProducts.length) {
+            const randomIndex = Math.floor(Math.random() * validProducts.length);
+            if (!usedIndices.has(randomIndex)) {
+                usedIndices.add(randomIndex);
+                selectedItems.push(validProducts[randomIndex]);
+            }
+        }
+    }
+    
+    // Sort by calories (descending) to get correct order
+    const correctOrder = [...selectedItems].sort((a, b) => 
+        parseInt(b.basecalories) - parseInt(a.basecalories)
+    );
+    
+    // Shuffle for display
+    const shuffledItems = [...selectedItems];
+    for (let i = shuffledItems.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledItems[i], shuffledItems[j]] = [shuffledItems[j], shuffledItems[i]];
+    }
+    
+    // Store both arrays
+    discaloriedItemsData = shuffledItems;
+    discaloriedItemsData.correctOrder = correctOrder;
+    
+    // Log the calorie range for debugging
+    const calories = selectedItems.map(item => parseInt(item.basecalories));
+    const minCal = Math.min(...calories);
+    const maxCal = Math.max(...calories);
+    console.log(`Discaloried Hard Mode: Selected items with calorie range ${minCal}-${maxCal} (difference: ${maxCal - minCal})`);
 }
 
 // Display Discaloried items
