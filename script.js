@@ -34,6 +34,7 @@ const foodName = document.getElementById('food-name');
 const foodDescription = document.getElementById('food-description');
 const calorieGuess = document.getElementById('calorie-guess');
 const submitGuess = document.getElementById('submit-guess');
+const rerollChallenge = document.getElementById('reroll-challenge');
 const feedback = document.getElementById('feedback');
 const guessesList = document.getElementById('guesses-list');
 const resultMessage = document.getElementById('result-message');
@@ -53,6 +54,7 @@ const discaloriedGame = document.getElementById('discaloried-game');
 // Discaloried DOM elements
 const discaloriedItems = document.getElementById('discaloried-items');
 const discaloriedGuessBtn = document.getElementById('discaloried-guess-btn');
+const discaloriedRerollChallenge = document.getElementById('discaloried-reroll-challenge');
 const discaloriedFeedback = document.getElementById('discaloried-feedback');
 const discaloriedResult = document.getElementById('discaloried-result');
 const discaloriedGuessesSpan = document.getElementById('discaloried-guesses');
@@ -69,6 +71,7 @@ async function initGame() {
 
         // Set up event listeners
         submitGuess.addEventListener('click', handleGuess);
+        rerollChallenge.addEventListener('click', handleRerollChallenge);
         calorieGuess.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 handleGuess();
@@ -85,6 +88,7 @@ async function initGame() {
         
         // Set up Discaloried game listeners
         discaloriedGuessBtn.addEventListener('click', handleDiscaloriedGuess);
+        discaloriedRerollChallenge.addEventListener('click', handleDiscaloriedRerollChallenge);
         
         // Set up image overlay listeners
         imageOverlayClose.addEventListener('click', closeImageOverlay);
@@ -987,6 +991,25 @@ function addDiscaloriedPlayAgainButton() {
 
     discaloriedResult.appendChild(document.createElement('br'));
     discaloriedResult.appendChild(playAgainButton);
+}
+
+// Handle reroll challenge for Classic mode
+function handleRerollChallenge() {
+    if (!gameActive) return; // Don't allow reroll if game is over
+    
+    // Reset button color
+    resetButtonColor();
+    
+    // Select a new random item
+    selectRandomItem();
+}
+
+// Handle reroll challenge for Discaloried modes
+function handleDiscaloriedRerollChallenge() {
+    if (!discaloriedGameActive) return; // Don't allow reroll if game is over
+    
+    // Restart the Discaloried game with new items
+    initDiscaloriedGame();
 }
 
 // Image overlay functions
